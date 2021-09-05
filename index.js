@@ -27,7 +27,8 @@ const slashCommands = require('./modules/slash-commands')
 const { Player } = require("discord-player")
 const player = new Player(luka, {
   ytdlOptions: {
-    filter: 'audio'
+    filter: 'audio',
+    highWaterMark: 1 << 25
   }
 })
 
