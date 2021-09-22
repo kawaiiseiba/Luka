@@ -27,8 +27,17 @@ const slashCommands = require('./modules/slash-commands')
 const { Player } = require("discord-player")
 const player = new Player(luka, {
   ytdlOptions: {
-    filter: 'audio'
+    filter: 'audio',
+    highWaterMark: 1<<25
   }
+})
+
+player.on('error', (queue, error) => {
+  console.log(`[${queue.guild.name}] Error emitted from the queue: ${error.message}`)
+})
+
+player.on('connectionError', (queue, error) => {
+  console.log(`[${queue.guild.name}] Error emitted from the connection: ${error.message}`)
 })
 
 player.on("trackStart", (queue, track) => {
@@ -44,14 +53,23 @@ player.on("trackStart", (queue, track) => {
     }
   )
   // queue.metadata.channel.send(`🎶 | Now playing **${track.title}** in **${queue.connection.channel.name}**!`)
+  luka.guilds.cache.get('848169570954641438').channels.cache.get('890153344956514335').send(`🎶 | Now playing **${track.title}** in **${queue.connection.channel.name}**!\n${track.url}`)
 })
-player.on('trackAdd', (queue, track) => queue.metadata.channel.send(`🎶 | Track **${track.title}** queued!`))
-// player.on('trackEnd', (queue, track) => {
-//   queue.addTrack(track)
-// })
 
-player.on('error', err => {
-  console.log(`error playing`)
+player.on('trackAdd', (queue, track) => queue.metadata.channel.send(`🎶 | Track **${track.title}** queued!`))
+
+player.on('trackEnd', (queue, track) => {
+  luka.user.setPresence(
+    { 
+      activities: [
+        { 
+          name: 'you 🎶', //▶︎Henceforth
+          type: 'LISTENING',
+        }
+      ],
+      status: 'online'
+    }
+  )
 })
 
 player.on('botDisconnect', queue => {
@@ -68,7 +86,9 @@ player.on('botDisconnect', queue => {
     }
   )
 })
+
 player.on('channelEmpty', queue => queue.metadata.channel.send('❌ | Nobody is in the voice channel, leaving...'))
+
 player.on('queueEnd', queue => {
   luka.user.setPresence(
     { 
@@ -128,9 +148,7 @@ luka.on('interactionCreate', async interaction => {
       await interaction.followUp({ content: `⏱ | Loading your ${searchResult.playlist ? 'playlist' : 'track'}...`, })
 
       searchResult.playlist ? queue.addTracks(searchResult.tracks) : queue.addTrack(searchResult.tracks[0])
-      if (!queue.playing) await queue.play().then(async () => {
-        await interaction.followUp({ content: `🎶 | Now playing **${searchResult.tracks[0].title}** in **${queue.connection.channel.name}**!` })
-      })
+      if (!queue.playing) await queue.play()
 
     } else if (CMD === `pause`){
       if (!interaction.member.voice.channel) {
@@ -198,19 +216,10 @@ luka.on('interactionCreate', async interaction => {
       const embed = {
         title: `Queue for ${queue.guild.name}`,
         color: 3092790,
+        description: `__**Now Playing**:__\n[${current.title}](${current.url})\n\`${current.duration} Requested by: ${current.requestedBy.tag}\`\n${upNext.length != 0 ? `__**Up Next**:__\n${upNext.join('\n\n')}` : ''}`,
         thumbnail: {
           url: queue.guild.iconURL()
         },
-        fields: [
-          {
-            name: `__Now Playing:__`,
-            value: `[${current.title}](${current.url})\n\`${current.duration} Requested by: ${current.requestedBy.tag}\``
-          },
-          upNext.length != 0 ? {
-            name: `__Up Next:__`,
-            value: upNext.join('\n\n')
-          } : []
-        ],
         footer: {
           iconURL: interaction.user.displayAvatarURL({ dynamic: true }),
           text: `Loop: ${queue.repeatMode === 1 ? '✅' : '❌' } | Queue Loop: ${queue.repeatMode === 2 ? '✅' : '❌' }`
@@ -411,7 +420,7 @@ luka.on('interactionCreate', async interaction => {
   }
 })
 
-luka.on('ready', async () => {
+luka.once('ready', async () => {
   luka.user.setPresence(
     { 
       activities: [
@@ -426,6 +435,14 @@ luka.on('ready', async () => {
 
   // await slashCommands(luka)
   console.log(`Luka went online~`)
+})
+
+luka.once('reconnecting', () => {
+  console.log('Reconnecting!')
+})
+
+luka.once('disconnect', () => {
+  console.log('Disconnect!')
 })
 
 luka.login(process.env.MegurineLuka)
