@@ -40,7 +40,7 @@ const resetStatusActivity = () => {
       activities: [
         { 
           name: 'you 🎶', //▶︎Henceforth you 🎶
-          type: 'PLAYING',
+          type: 'LISTENING',
         }
       ],
       status: 'online'
