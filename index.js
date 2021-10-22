@@ -21,7 +21,6 @@ const luka = new Discord.Client({
   ] 
 })
 
-const fetch = require('node-fetch')
 const slashCommands = require('./modules/slash-commands')
 
 const { Player } = require("discord-player")
