@@ -27,10 +27,26 @@ const slashCommands = require('./modules/slash-commands')
 const { Player } = require("discord-player")
 const player = new Player(luka, {
   ytdlOptions: {
-    filter: 'audio',
-    highWaterMark: 1<<25
+    quality: 'highest',
+    filter: 'audioonly',
+    highWaterMark: 1 << 25,
+    dlChunkSize: 0
   }
 })
+
+const resetStatusActivity = () => {
+  luka.user.setPresence(
+    { 
+      activities: [
+        { 
+          name: 'you 🎶', //▶︎Henceforth you 🎶
+          type: 'PLAYING',
+        }
+      ],
+      status: 'online'
+    }
+  )
+}
 
 player.on('error', (queue, error) => {
   console.log(`[${queue.guild.name}] Error emitted from the queue: ${error.message}`)
@@ -59,48 +75,18 @@ player.on("trackStart", (queue, track) => {
 player.on('trackAdd', (queue, track) => queue.metadata.channel.send(`🎶 | Track **${track.title}** queued!`))
 
 player.on('trackEnd', (queue, track) => {
-  luka.user.setPresence(
-    { 
-      activities: [
-        { 
-          name: 'you 🎶', //▶︎Henceforth
-          type: 'LISTENING',
-        }
-      ],
-      status: 'online'
-    }
-  )
+  resetStatusActivity()
 })
 
 player.on('botDisconnect', queue => {
   queue.metadata.channel.send('❌ | I was manually disconnected from the voice channel, clearing queue!')
-  luka.user.setPresence(
-    { 
-      activities: [
-        { 
-          name: 'you 🎶', //▶︎Henceforth
-          type: 'LISTENING',
-        }
-      ],
-      status: 'online'
-    }
-  )
+  resetStatusActivity()
 })
 
 player.on('channelEmpty', queue => queue.metadata.channel.send('❌ | Nobody is in the voice channel, leaving...'))
 
 player.on('queueEnd', queue => {
-  luka.user.setPresence(
-    { 
-      activities: [
-        { 
-          name: 'you 🎶', //▶︎Henceforth
-          type: 'LISTENING',
-        }
-      ],
-      status: 'online'
-    }
-  )
+  resetStatusActivity()
   queue.metadata.channel.send('✅ | **Queue finished!**')
 })
 
@@ -421,20 +407,11 @@ luka.on('interactionCreate', async interaction => {
 })
 
 luka.once('ready', async () => {
-  luka.user.setPresence(
-    { 
-      activities: [
-        { 
-          name: 'you 🎶', //▶︎Henceforth
-          type: 'LISTENING',
-        }
-      ],
-      status: 'online'
-    }
-  )
+  resetStatusActivity()
 
   // await slashCommands(luka)
-  console.log(`Luka went online~`)
+  const datenow = new Date().toLocaleString('en-US', { timeZone: 'Asia/Manila' })
+  console.log(`Luka went online~\nDate: ${datenow}`)
 })
 
 luka.once('reconnecting', () => {
