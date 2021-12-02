@@ -198,6 +198,8 @@ luka.on('voiceStateUpdate', async (oldState, newState) => {
     }
   }
 
+  if(oldState.channelId === newState.channelId) return
+
   const inFarSide = GAMES_VC.find(data => data.gameVc.vcId === voiceState?.channelId)
   if(!inFarSide) return
 
