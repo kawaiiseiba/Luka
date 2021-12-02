@@ -3,7 +3,7 @@ const { QueueRepeatMode } = require('discord-player')
 
 module.exports = async luka => {
 
-    // await luka.api.applications(luka.user.id).guilds('848169570954641438').commands('914901387974963240').delete()
+    // await luka.api.applications(luka.user.id).guilds('848169570954641438').commands('914917434157334589').delete()
 
     // await luka.api.applications(luka.user.id).guilds('848169570954641438').commands.post({
     //     data: {
@@ -25,11 +25,6 @@ module.exports = async luka => {
     //                 name: 'help',
     //                 type: 1,
     //                 description: `Shows information about available commands`
-    //             },
-    //             {
-    //                 name: 'follow',
-    //                 type: 1,
-    //                 description: `Follows you to a voice channel you're connected to`
     //             },
     //             {
     //                 name: 'jump',
@@ -148,11 +143,6 @@ module.exports = async luka => {
     //                 name: 'stop',
     //                 type: 1,
     //                 description: 'Luka will stop playing'
-    //             },
-    //             {
-    //                 name: 'disconnect',
-    //                 type: 1,
-    //                 description: 'Luka will disconnect from the voice channel'
     //             }
     //         ]
     //     }

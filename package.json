@@ -16,6 +16,7 @@
     "dotenv": "^10.0.0",
     "ffmpeg": "0.0.4",
     "fluent-ffmpeg": "^2.1.2",
+    "fs": "^0.0.1-security",
     "play-dl": "^1.4.0",
     "ytdl-core": "^4.9.1"
   }
