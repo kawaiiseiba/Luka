@@ -181,7 +181,7 @@ luka.on('voiceStateUpdate', async (oldState, newState) => {
     queue.addTracks(requestedTracks)
     queue.skip()
 
-    const prevTrack = queue.previousTrack[0]
+    const prevTrack = queue.previousTrack[0] ? queue.previousTrack[0] : false
 
     if(!prevTrack) return
 
