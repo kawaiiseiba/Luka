@@ -27,11 +27,12 @@ module.exports = {
 
         const queue = player.createQueue(interaction.guild, {
             metadata: {
-            channel: interaction.channel
+                channel: interaction.channel
             },
+            leaveOnEmptyCooldown: 30000,
             async onBeforeCreateStream(track, source, _queue) {
-            if (source === "youtube" || source === "spotify") return (await playdl.stream(track.url)).stream
-            return
+                if (source === "youtube" || source === "spotify") return (await playdl.stream(track.url)).stream
+                return
             }
         })
 

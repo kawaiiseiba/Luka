@@ -46,6 +46,7 @@ module.exports = {
           metadata: {
             channel: interaction.channel
           },
+          leaveOnEmptyCooldown: 30000,
           async onBeforeCreateStream(track, source, _queue) {
             if (source === "youtube" || source === "spotify") return (await playdl.stream(track.url)).stream
           }
