@@ -201,9 +201,7 @@ luka.on('voiceStateUpdate', async (oldState, newState) => {
   const inFarSide = GAMES_VC.find(data => data.gameVc.vcId === voiceState?.channelId)
   if(!inFarSide) return
 
-  // if(current.requestedBy.id !== user.id) {
-
-  // }
+  if(current.requestedBy.id !== user.id) return
 
   const vcToJoin = altria.channels.cache.get(voiceState?.channelId)
   return altria.me.voice.setChannel(vcToJoin)
