@@ -168,8 +168,12 @@ luka.on('voiceStateUpdate', async (oldState, newState) => {
   const tracks = queue.tracks
 
   if(!voiceState) return
-  if(!voiceState?.channelId) {
+  if(!voiceState.channel) {
     if(tracks.length < 1) return
+
+    const hasRequest = tracks.find(track => track.requestedBy.id === user.id)
+
+    if(!hasRequest) return
 
     const requestedTracks = tracks.filter(track => track.requestedBy.id !== user.id)
 
@@ -181,7 +185,7 @@ luka.on('voiceStateUpdate', async (oldState, newState) => {
     queue.addTracks(requestedTracks)
     queue.skip()
 
-    const prevTrack = queue.previousTrack[0] ? queue.previousTrack[0] : false
+    const prevTrack = queue.previousTracks.length !== 0 ? queue.previousTracks[0] : false
 
     if(!prevTrack) return
 
