@@ -154,59 +154,63 @@ const GAMES_VC = [
 ]
 
 luka.on('voiceStateUpdate', async (oldState, newState) => {
-  const altria = luka.guilds.cache.get('848169570954641438')
-  const member = altria.members.cache.get(newState.id)
-  const voiceState = member.voice
-  const presence = member.presence
-  const user = member.user
+  try{
+    const altria = luka.guilds.cache.get('848169570954641438')
+    const member = altria.members.cache.get(newState.id)
+    const voiceState = member.voice
+    const presence = member.presence
+    const user = member.user
 
-  if(user.bot) return 
+    if(user.bot) return 
 
-  const queue = player.getQueue(altria.id)
-  if(!queue) return
-  const current = queue.current
-  const tracks = queue.tracks
+    const queue = player.getQueue(altria.id)
+    if(!queue) return
+    const current = queue.current
+    const tracks = queue.tracks 
 
-  if(!voiceState) return
-  if(!voiceState.channel) {
-    if(tracks.length < 1) return
+    if(!voiceState) return
+    if(!voiceState.channel) {
+      if(tracks.length < 1) return
 
-    const hasRequest = tracks.find(track => track.requestedBy.id === user.id)
+      const hasRequest = tracks.find(track => track.requestedBy.id === user.id)
 
-    if(!hasRequest) return
+      if(!hasRequest) return
 
-    const requestedTracks = tracks.filter(track => track.requestedBy.id !== user.id)
+      const requestedTracks = tracks.filter(track => track.requestedBy.id !== user.id)
 
-    if(requestedTracks.length < 1) {
+      if(requestedTracks.length < 1) {
+        queue.clear()
+      }
+
       queue.clear()
+      queue.addTracks(requestedTracks)
+      queue.skip()
+
+      const prevTrack = queue.previousTracks.length !== 0 ? queue.previousTracks[0] : false
+
+      if(!prevTrack) return
+
+      if(prevTrack.requestedBy.id === user.id) {
+        const getPos = queue.getTrackPosition(prevTrack)
+
+        if(getPos === -1) return
+
+        return queue.remove(getPos)
+      }
     }
 
-    queue.clear()
-    queue.addTracks(requestedTracks)
-    queue.skip()
+    if(oldState.channelId === newState.channelId) return
 
-    const prevTrack = queue.previousTracks.length !== 0 ? queue.previousTracks[0] : false
+    const inFarSide = GAMES_VC.find(data => data.gameVc.vcId === voiceState?.channelId)
+    if(!inFarSide) return
 
-    if(!prevTrack) return
+    if(current.requestedBy.id !== user.id) return
 
-    if(prevTrack.requestedBy.id === user.id) {
-      const getPos = queue.getTrackPosition(prevTrack)
-
-      if(getPos === -1) return
-
-      return queue.remove(getPos)
-    }
+    const vcToJoin = altria.channels.cache.get(voiceState?.channelId)
+    return altria.me.voice.setChannel(vcToJoin)
+  } catch(e) {
+    console.log(e)
   }
-
-  if(oldState.channelId === newState.channelId) return
-
-  const inFarSide = GAMES_VC.find(data => data.gameVc.vcId === voiceState?.channelId)
-  if(!inFarSide) return
-
-  if(current.requestedBy.id !== user.id) return
-
-  const vcToJoin = altria.channels.cache.get(voiceState?.channelId)
-  return altria.me.voice.setChannel(vcToJoin)
 })
 
 luka.once('ready', async () => {
