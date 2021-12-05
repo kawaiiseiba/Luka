@@ -6,6 +6,17 @@ const Client = require('./client/Client')
 const luka = new Client()
 luka.commands = new Discord.Collection()
 
+const mongoose = require('mongoose')
+mongoose.connect(process.env.AkashicRecords, { 
+  useNewUrlParser: true, 
+  useUnifiedTopology: true
+})
+
+const GAMES_VC = require('./schemas/games_voice')
+
+const db = mongoose.connection
+db.on('error', e => console.log({ message: e.message }))
+
 const commandFiles = fs.readdirSync('./commands').filter(file => file.endsWith('.js'));
 
 for (const file of commandFiles) {
@@ -102,56 +113,6 @@ luka.on('interactionCreate', async interaction => {
   }
 })
 
-const GAMES_VC = [
-  {
-    gameVc: {
-      name: `lounge`, 
-      vcId: `909067741288341564`
-    }
-  },
-  {
-    gameVc: {
-      name: `axie infinity`,
-      vcId: `914338740732854342`
-    }
-  },
-  {
-    gameVc: {
-      name: `genshin impact`,
-      vcId: `909068725024600175`
-    }
-  },
-  {
-    gameVc: {
-      name: `league of legends`,
-      vcId: `908986448076734484`
-    }
-  },
-  {
-    gameVc: {
-      name: `left 4 dead`,
-      vcId: `909379903860928542`
-    }
-  },
-  {
-    gameVc: {
-      name: `phasmophobia`,
-      vcId: `909379998677336134`
-    }
-  },
-  {
-    gameVc: {
-      name: `valorant`,
-      vcId: `909065684246470707`
-    }
-  },
-  {
-    gameVc: {
-      name: `visual studio code`,
-      vcId: `881441102253674547`
-    }
-  }
-]
 
 luka.on('voiceStateUpdate', async (oldState, newState) => {
   try{
@@ -160,6 +121,8 @@ luka.on('voiceStateUpdate', async (oldState, newState) => {
     const voiceState = member.voice
     const presence = member.presence
     const user = member.user
+
+    const games_vc = await GAMES_VC.find()
 
     if(user.bot) return 
 
@@ -174,17 +137,19 @@ luka.on('voiceStateUpdate', async (oldState, newState) => {
 
       const hasRequest = tracks.find(track => track.requestedBy.id === user.id)
 
-      if(!hasRequest) return
+      if(!hasRequest) return // No Request Found
 
       const requestedTracks = tracks.filter(track => track.requestedBy.id !== user.id)
 
-      if(requestedTracks.length < 1) {
-        queue.clear()
+      if(requestedTracks.length < 1) { // Request from other users
+        return queue.destroy()
       }
 
       queue.clear()
       queue.addTracks(requestedTracks)
-      queue.skip()
+      const skippable = current.requestedBy.id === user.id ? queue.skip() : false
+
+      if(!skippable) return
 
       const prevTrack = queue.previousTracks.length !== 0 ? queue.previousTracks[0] : false
 
@@ -201,12 +166,12 @@ luka.on('voiceStateUpdate', async (oldState, newState) => {
 
     if(oldState.channelId === newState.channelId) return
 
-    const inFarSide = GAMES_VC.find(data => data.gameVc.vcId === voiceState?.channelId)
+    const inFarSide = games_vc.find(data => data.vc === voiceState.channel.id)
     if(!inFarSide) return
 
     if(current.requestedBy.id !== user.id) return
 
-    const vcToJoin = altria.channels.cache.get(voiceState?.channelId)
+    const vcToJoin = altria.channels.cache.get(voiceState.channel.id)
     return altria.me.voice.setChannel(vcToJoin)
   } catch(e) {
     console.log(e)

@@ -27,6 +27,6 @@ module.exports = {
         if (!queue || !queue.playing) return void interaction.followUp({ content: '❌ | No music is being played!' })
 
         const success = await queue.back()
-        return await interaction.followUp({ content: success ? '✅ | Playing the previous track!' : '❌ | **Something went wrong!**', })
+        return await interaction.followUp({ content: success ? '✅ | Playing the previous track!' : '❌ | **Something went wrong!**' })
     }
 }

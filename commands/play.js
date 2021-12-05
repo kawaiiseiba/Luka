@@ -31,8 +31,11 @@ module.exports = {
             },
             leaveOnEmptyCooldown: 30000,
             async onBeforeCreateStream(track, source, _queue) {
-                if (source === "youtube" || source === "spotify") return (await playdl.stream(track.url)).stream
-                return
+                if (track.playlist?.source === "spotify") {
+                    const searched = await playdl.search(`${track.title}`, { limit : 1 })
+                    return (await playdl.stream(searched[0].url)).stream
+                }
+                return (await playdl.stream(track.url)).stream
             }
         })
 
