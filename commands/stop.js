@@ -26,6 +26,6 @@ module.exports = {
         if (!queue || !queue.playing) return void interaction.followUp({ content: '❌ | No music is being played!' })
 
         queue.destroy()
-        return void interaction.followUp({content: `🛑 | ${luka.user.username} stopped playing!`})
+        return queue.destroyed ? interaction.followUp({content: `🛑 | ${luka.user.username} stopped playing!`}) : console.log("Cannot go further because the queue is destroyed")
     }
 }

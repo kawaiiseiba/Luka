@@ -142,7 +142,9 @@ luka.on('voiceStateUpdate', async (oldState, newState) => {
       const requestedTracks = tracks.filter(track => track.requestedBy.id !== user.id)
 
       if(requestedTracks.length < 1) { // Request from other users
-        return queue.destroy()
+        queue.destroy()
+        if(queue.destroyed) return console.log("Cannot go further because the queue is destroyed")
+        return
       }
 
       queue.clear()

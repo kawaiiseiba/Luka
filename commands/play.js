@@ -30,19 +30,25 @@ module.exports = {
                 channel: interaction.channel
             },
             leaveOnEmptyCooldown: 30000,
-            async onBeforeCreateStream(track, source, _queue) {
-                if (track.playlist?.source === "spotify") {
-                    const searched = await playdl.search(`${track.title}`, { limit : 1 })
-                    return (await playdl.stream(searched[0].url)).stream
-                }
-                return (await playdl.stream(track.url)).stream
+            ytdlOptions: {
+                quality: 'highest',
+                filter: 'audioonly',
+                highWaterMark: 1 << 25,
+                dlChunkSize: 0
             }
+            // async onBeforeCreateStream(track, source, _queue) {
+            //     if (track.playlist?.source === "spotify") {
+            //         const searched = await playdl.search(`${track.title}`, { limit : 1 })
+            //         return (await playdl.stream(searched[0].url)).stream
+            //     }
+            //     return (await playdl.stream(track.url)).stream
+            // }
         })
 
         try {
-            if (!queue.connection) await queue.connect(interaction.member.voice.channel);
+            if (!queue.connection) await queue.connect(interaction.member.voice.channel)
         } catch {
-            queue.destroy();
+            queue.destroy()
             return await interaction.reply({ content: "Could not join your voice channel!", ephemeral: true })
         }
 
@@ -51,7 +57,7 @@ module.exports = {
             requestedBy: interaction.user
         }).catch(() => {})
 
-        if (!searchResult || !searchResult.tracks.length) return await interaction.followUp({content: 'No results were found!'})
+        if (!searchResult || !searchResult.tracks.length) return await interaction.followUp({content: '> No results were found!'})
 
 
         await interaction.followUp({ content: `⏱ | Loading your ${searchResult.playlist ? 'playlist' : 'track'}...`, })

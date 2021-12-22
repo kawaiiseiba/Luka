@@ -19,6 +19,6 @@
     "fs": "^0.0.1-security",
     "mongoose": "^6.0.14",
     "play-dl": "^1.4.4",
-    "ytdl-core": "^4.9.1"
+    "ytdl-core": "^4.9.2"
   }
 }

@@ -43,17 +43,23 @@ module.exports = {
           return void interaction.followUp({content: 'No results were found!'});
   
         const queue = player.createQueue(interaction.guild, {
-          metadata: {
-            channel: interaction.channel
-          },
-          leaveOnEmptyCooldown: 30000,
-          async onBeforeCreateStream(track, source, _queue) {
-            if (track.playlist?.source === "spotify") {
-              const searched = await playdl.search(`${track.title}`, { limit : 1 })
-              return (await playdl.stream(searched[0].url)).stream
+            metadata: {
+                channel: interaction.channel
+            },
+            leaveOnEmptyCooldown: 30000,
+            ytdlOptions: {
+                quality: 'highest',
+                filter: 'audioonly',
+                highWaterMark: 1 << 25,
+                dlChunkSize: 0
             }
-            return (await playdl.stream(track.url)).stream
-          }
+        //   async onBeforeCreateStream(track, source, _queue) {
+        //     if (track.playlist?.source === "spotify") {
+        //       const searched = await playdl.search(`${track.title}`, { limit : 1 })
+        //       return (await playdl.stream(searched[0].url)).stream
+        //     }
+        //     return (await playdl.stream(track.url)).stream
+        //   }
         })
   
         try {
