@@ -203,6 +203,7 @@ luka.once('ready', async () => {
 
 luka.once('reconnecting', () => {
   console.log('Reconnecting!')
+  resetStatusActivity()
 })
 
 luka.once('disconnect', () => {
