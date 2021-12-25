@@ -159,19 +159,15 @@ luka.on('voiceStateUpdate', async (oldState, newState) => {
 
       if(prevTrack.requestedBy.id === user.id) {
         const getPos = queue.getTrackPosition(prevTrack)
-
-        if(getPos === -1) return
-
         return queue.remove(getPos)
       }
     }
 
     if(oldState.channelId === newState.channelId) return
+    if(current.requestedBy.id !== user.id) return
 
     const inFarSide = games_vc.find(data => data.vc === voiceState.channel.id)
     if(!inFarSide) return
-
-    if(current.requestedBy.id !== user.id) return
 
     const vcToJoin = altria.channels.cache.get(voiceState.channel.id)
     return altria.me.voice.setChannel(vcToJoin)
